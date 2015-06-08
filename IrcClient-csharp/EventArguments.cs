@@ -91,4 +91,19 @@ namespace TechLifeForum
         public ExceptionEventArgs(Exception x) { Exception = x; }
         public override string ToString() { return Exception.ToString(); }
     }
+
+    public class ModeSetEventArgs : EventArgs
+    {
+        public string Channel { get; internal set; }
+        public string From { get; internal set; }
+        public string To { get; internal set; }
+        public string Mode { get; internal set; }
+        public ModeSetEventArgs(string Channel, string From, string To, string Mode)
+        {
+            this.Channel = Channel;
+            this.From = From;
+            this.To = To;
+            this.Mode = Mode;
+        }
+    }
 }

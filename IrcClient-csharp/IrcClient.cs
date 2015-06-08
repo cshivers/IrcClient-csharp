@@ -140,6 +140,8 @@ namespace TechLifeForum
 
         public event EventHandler<ExceptionEventArgs> ExceptionThrown = delegate { };
 
+        public event EventHandler<ModeSetEventArgs> ModeSet = delegate { };
+
         private void Fire_UpdateUsers(UpdateUsersEventArgs o)
         {
             op.Post(x => UpdateUsers(this, (UpdateUsersEventArgs)x), o);
@@ -184,6 +186,10 @@ namespace TechLifeForum
         private void Fire_ExceptionThrown(Exception ex)
         {
             op.Post(x => ExceptionThrown(this, (ExceptionEventArgs)x), new ExceptionEventArgs(ex));
+        }
+        private void Fire_ModeSet(ModeSetEventArgs o)
+        {
+            op.Post(x => ModeSet(this, (ModeSetEventArgs)x), o);
         }
         #endregion
 
@@ -328,7 +334,7 @@ namespace TechLifeForum
                     //if (OnConnect != null) OnConnect();
                     break;
                 case "353": // member list
-                   Fire_UpdateUsers(new UpdateUsersEventArgs(ircData[4], JoinArray(ircData, 5).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)));
+                    Fire_UpdateUsers(new UpdateUsersEventArgs(ircData[4], JoinArray(ircData, 5).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)));
                     break;
                 case "433":
                     Fire_NickTaken(ircData[3]);
@@ -350,6 +356,9 @@ namespace TechLifeForum
                     break;
                 case "JOIN": // someone joined
                     Fire_UserJoined(new UserJoinedEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf("!") - 1)));
+                    break;
+                case "MODE": // MODE was set
+                    Fire_ModeSet(new ModeSetEventArgs(ircData[2], ircData[0].Substring(1), ircData[4], ircData[3]));
                     break;
                 case "NICK": // someone changed their nick
                     Fire_NickChanged(new UserNickChangedEventArgs(ircData[0].Substring(1, ircData[0].IndexOf("!") - 1), JoinArray(ircData, 3)));
@@ -424,7 +433,7 @@ namespace TechLifeForum
 
 
 
-        
+
     }
 
 }

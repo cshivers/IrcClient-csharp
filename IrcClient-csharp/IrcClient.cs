@@ -358,7 +358,7 @@ namespace TechLifeForum
                     Fire_UserJoined(new UserJoinedEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf("!") - 1)));
                     break;
                 case "MODE": // MODE was set
-                    Fire_ModeSet(new ModeSetEventArgs(ircData[2], ircData[0].Substring(1), ircData[4], ircData[3]));
+                    Fire_ModeSet(new ModeSetEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf("!") - 1), ircData[4], ircData[3]));
                     break;
                 case "NICK": // someone changed their nick
                     Fire_NickChanged(new UserNickChangedEventArgs(ircData[0].Substring(1, ircData[0].IndexOf("!") - 1), JoinArray(ircData, 3)));

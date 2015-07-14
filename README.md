@@ -9,6 +9,7 @@ Current events:
     ChannelMessage - fires when a channel message is received
     PrivateMessage - fires when a private message is received
     NoticeMessage - fires when a notice is received
+    ServerMessage - fires when no other event is fired
     UpdateUserList - fires when the IRC numeric 353 is received (user list)
     NickTaken - fires if the client's nick is in use already
     Disconnected - fires when the client is disconnected (currently disabled)

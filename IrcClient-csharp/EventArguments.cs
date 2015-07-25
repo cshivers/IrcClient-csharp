@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TechLifeForum
 {
@@ -9,30 +6,35 @@ namespace TechLifeForum
     {
         public string Channel { get; internal set; }
         public string[] UserList { get; internal set; }
-        public UpdateUsersEventArgs(string Channel, string[] UserList)
+
+        public UpdateUsersEventArgs(string channel, string[] userList)
         {
-            this.Channel = Channel;
-            this.UserList = UserList;
+            this.Channel = channel;
+            this.UserList = userList;
         }
     }
+
     public class UserJoinedEventArgs : EventArgs
     {
         public string Channel { get; internal set; }
         public string User { get; internal set; }
-        public UserJoinedEventArgs(string Channel, string User)
+
+        public UserJoinedEventArgs(string channel, string user)
         {
-            this.Channel = Channel;
-            this.User = User;
+            this.Channel = channel;
+            this.User = user;
         }
     }
+
     public class UserLeftEventArgs : EventArgs
     {
         public string Channel { get; internal set; }
         public string User { get; internal set; }
-        public UserLeftEventArgs(string Channel, string User)
+
+        public UserLeftEventArgs(string channel, string user)
         {
-            this.Channel = Channel;
-            this.User = User;
+            this.Channel = channel;
+            this.User = user;
         }
     }
 
@@ -41,31 +43,36 @@ namespace TechLifeForum
         public string Channel { get; internal set; }
         public string From { get; internal set; }
         public string Message { get; internal set; }
-        public ChannelMessageEventArgs(string Channel, string From, string Message)
+
+        public ChannelMessageEventArgs(string channel, string from, string message)
         {
-            this.Channel = Channel;
-            this.From = From;
-            this.Message = Message;
+            this.Channel = channel;
+            this.From = from;
+            this.Message = message;
         }
     }
+
     public class NoticeMessageEventArgs : EventArgs
     {
         public string From { get; internal set; }
         public string Message { get; internal set; }
-        public NoticeMessageEventArgs(string From, string Message)
+
+        public NoticeMessageEventArgs(string from, string message)
         {
-            this.From = From;
-            this.Message = Message;
+            this.From = from;
+            this.Message = message;
         }
     }
+
     public class PrivateMessageEventArgs : EventArgs
     {
         public string From { get; internal set; }
         public string Message { get; internal set; }
-        public PrivateMessageEventArgs(string From, string Message)
+
+        public PrivateMessageEventArgs(string from, string message)
         {
-            this.From = From;
-            this.Message = Message;
+            this.From = from;
+            this.Message = message;
         }
     }
 
@@ -73,23 +80,42 @@ namespace TechLifeForum
     {
         public string Old { get; internal set; }
         public string New { get; internal set; }
-        public UserNickChangedEventArgs(string Old, string New)
+
+        public UserNickChangedEventArgs(string oldNick, string newNick)
         {
-            this.Old = Old;
-            this.New = New;
+            this.Old = oldNick;
+            this.New = newNick;
         }
     }
+
     public class StringEventArgs : EventArgs
     {
         public string Result { get; internal set; }
-        public StringEventArgs(string s) { Result = s; }
-        public override string ToString() { return Result; }
+
+        public StringEventArgs(string s)
+        {
+            Result = s;
+        }
+
+        public override string ToString()
+        {
+            return Result;
+        }
     }
+
     public class ExceptionEventArgs : EventArgs
     {
         public Exception Exception { get; internal set; }
-        public ExceptionEventArgs(Exception x) { Exception = x; }
-        public override string ToString() { return Exception.ToString(); }
+
+        public ExceptionEventArgs(Exception x)
+        {
+            Exception = x;
+        }
+
+        public override string ToString()
+        {
+            return Exception.ToString();
+        }
     }
 
     public class ModeSetEventArgs : EventArgs
@@ -98,12 +124,13 @@ namespace TechLifeForum
         public string From { get; internal set; }
         public string To { get; internal set; }
         public string Mode { get; internal set; }
-        public ModeSetEventArgs(string Channel, string From, string To, string Mode)
+
+        public ModeSetEventArgs(string channel, string from, string to, string mode)
         {
-            this.Channel = Channel;
-            this.From = From;
-            this.To = To;
-            this.Mode = Mode;
+            this.Channel = channel;
+            this.From = from;
+            this.To = to;
+            this.Mode = mode;
         }
     }
 }

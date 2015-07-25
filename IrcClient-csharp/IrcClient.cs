@@ -140,7 +140,7 @@ namespace TechLifeForum
 
         public event EventHandler<ExceptionEventArgs> ExceptionThrown = delegate { };
 
-        public event EventHandler<ModeSetEventArgs> ModeSet = delegate { };
+        public event EventHandler<ModeSetEventArgs> ChannelModeSet = delegate { };
 
         private void Fire_UpdateUsers(UpdateUsersEventArgs o)
         {
@@ -187,9 +187,9 @@ namespace TechLifeForum
         {
             op.Post(x => ExceptionThrown(this, (ExceptionEventArgs)x), new ExceptionEventArgs(ex));
         }
-        private void Fire_ModeSet(ModeSetEventArgs o)
+        private void Fire_ChannelModeSet(ModeSetEventArgs o)
         {
-            op.Post(x => ModeSet(this, (ModeSetEventArgs)x), o);
+            op.Post(x => ChannelModeSet(this, (ModeSetEventArgs)x), o);
         }
         #endregion
 
@@ -199,8 +199,7 @@ namespace TechLifeForum
         /// </summary>
         public void Connect()
         {
-            Thread t = new Thread(DoConnect);
-            t.IsBackground = true;
+            Thread t = new Thread(DoConnect) { IsBackground = true };
             t.Start();
         }
         private void DoConnect()
@@ -242,44 +241,46 @@ namespace TechLifeForum
         /// <summary>
         /// Sends the JOIN command to the server
         /// </summary>
-        /// <param name="Channel">Channel to join</param>
-        public void JoinChannel(string Channel)
+        /// <param name="channel">Channel to join</param>
+        public void JoinChannel(string channel)
         {
             if (irc != null && irc.Connected)
             {
-                Send("JOIN " + Channel);
+                Send("JOIN " + channel);
             }
         }
         /// <summary>
         /// Sends the PART command for a given channel
         /// </summary>
-        /// <param name="Channel">Channel to leave</param>
-        public void PartChannel(string Channel)
+        /// <param name="channel">Channel to leave</param>
+        public void PartChannel(string channel)
         {
-            Send("PART " + Channel);
+            Send("PART " + channel);
         }
         /// <summary>
         /// Send a notice to a user
         /// </summary>
-        /// <param name="Nick">User to send the notice to</param>
+        /// <param name="toNick">User to send the notice to</param>
         /// <param name="message">The message to send</param>
-        public void SendNotice(string Nick, string message)
+        public void SendNotice(string toNick, string message)
         {
-            Send("NOTICE " + Nick + " :" + message);
+            Send("NOTICE " + toNick + " :" + message);
         }
+
         /// <summary>
         /// Send a message to the channel
         /// </summary>
+        /// <param name="channel">Channel to send message</param>
         /// <param name="message">Message to send</param>
-        public void SendMessage(string Channel, string Message)
+        public void SendMessage(string channel, string message)
         {
-            Send("PRIVMSG " + Channel + " :" + Message);
+            Send("PRIVMSG " + channel + " :" + message);
         }
         /// <summary>
         /// Send RAW IRC commands
         /// </summary>
         /// <param name="message"></param>
-        public void SendRAW(string message)
+        public void SendRaw(string message)
         {
             Send(message);
         }
@@ -301,8 +302,15 @@ namespace TechLifeForum
 
             while ((inputLine = reader.ReadLine()) != null)
             {
-                ParseData(inputLine);
-                Console.Write(inputLine);
+                try
+                {
+                    ParseData(inputLine);
+                    Console.Write(inputLine);
+                }
+                catch (Exception ex)
+                {
+                    Fire_ExceptionThrown(ex);
+                }
             }//end while
         }
         /// <summary>
@@ -313,6 +321,8 @@ namespace TechLifeForum
         {
             // split the data into parts
             string[] ircData = data.Split(' ');
+
+            var ircCommand = ircData[1];
 
             // if the message starts with PING we must PONG back
             if (data.Length > 4)
@@ -326,23 +336,31 @@ namespace TechLifeForum
             }
 
             // re-act according to the IRC Commands
-            switch (ircData[1])
+            switch (ircCommand)
             {
                 case "001": // server welcome message, after this we can join
                     Send("MODE " + _nick + " +B");
                     Fire_Connected();    //TODO: this might not work
-                    //if (OnConnect != null) OnConnect();
                     break;
                 case "353": // member list
-                    Fire_UpdateUsers(new UpdateUsersEventArgs(ircData[4], JoinArray(ircData, 5).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)));
+                    {
+                        var channel = ircData[4];
+                        var userList = JoinArray(ircData, 5).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        Fire_UpdateUsers(new UpdateUsersEventArgs(channel, userList));
+                    }
                     break;
                 case "433":
-                    Fire_NickTaken(ircData[3]);
+                    var takenNick = ircData[3];
 
-                    if (ircData[3] == _altNick)
+                    // notify user
+                    Fire_NickTaken(takenNick);
+
+                    // try alt nick if it's the first time 
+                    if (takenNick == _altNick)
                     {
-                        Random rand = new Random();
-                        string randomNick = "Guest" + rand.Next(0, 9) + rand.Next(0, 9) + rand.Next(0, 9);
+                        var rand = new Random();
+                        var randomNick = "Guest" + rand.Next(0, 9) + rand.Next(0, 9) + rand.Next(0, 9);
                         Send("NICK " + randomNick);
                         Send("USER " + randomNick + " 0 * :" + randomNick);
                         _nick = randomNick;
@@ -355,31 +373,72 @@ namespace TechLifeForum
                     }
                     break;
                 case "JOIN": // someone joined
-                    Fire_UserJoined(new UserJoinedEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf("!") - 1)));
+                    {
+                        var channel = ircData[2];
+                        var user = ircData[0].Substring(1, ircData[0].IndexOf("!", StringComparison.Ordinal) - 1);
+                        Fire_UserJoined(new UserJoinedEventArgs(channel, user));
+                    }
                     break;
                 case "MODE": // MODE was set
-                    Fire_ModeSet(new ModeSetEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf("!") - 1), ircData[4], ircData[3]));
+                    {
+                        var channel = ircData[2];
+                        if (channel != this.Nick)
+                        {
+                            string from;
+                            if (ircData[0].Contains("!"))
+                                from = ircData[0].Substring(1, ircData[0].IndexOf("!", StringComparison.Ordinal) - 1);
+                            else
+                                from = ircData[0].Substring(1);
+
+                            var to = ircData[4];
+                            var mode = ircData[3];
+                            Fire_ChannelModeSet(new ModeSetEventArgs(channel, from, to, mode));
+                        }
+
+                        // TODO: event for userMode's
+                    }
                     break;
                 case "NICK": // someone changed their nick
-                    Fire_NickChanged(new UserNickChangedEventArgs(ircData[0].Substring(1, ircData[0].IndexOf("!") - 1), JoinArray(ircData, 3)));
+                    var oldNick = ircData[0].Substring(1, ircData[0].IndexOf("!", StringComparison.Ordinal) - 1);
+                    var newNick = JoinArray(ircData, 3);
+
+                    Fire_NickChanged(new UserNickChangedEventArgs(oldNick, newNick));
                     break;
                 case "NOTICE": // someone sent a notice
-                    if (ircData[0].Contains("!"))
-                        Fire_NoticeMessage(new NoticeMessageEventArgs(ircData[0].Substring(1, ircData[0].IndexOf('!') - 1), JoinArray(ircData, 3)));
-                    else
-                        Fire_NoticeMessage(new NoticeMessageEventArgs(_server, JoinArray(ircData, 3)));
+                    {
+                        var from = ircData[0];
+                        var message = JoinArray(ircData, 3);
+                        if (from.Contains("!"))
+                        {
+                            from = from.Substring(1, ircData[0].IndexOf('!') - 1);
+                            Fire_NoticeMessage(new NoticeMessageEventArgs(from, message));
+                        }
+                        else
+                            Fire_NoticeMessage(new NoticeMessageEventArgs(_server, message));
+                    }
                     break;
                 case "PRIVMSG": // message was sent to the channel or as private
-                    // if it's a private message
-                    if (ircData[2].ToLower() == _nick.ToLower())
-                        Fire_PrivateMessage(new PrivateMessageEventArgs(ircData[0].Substring(1, ircData[0].IndexOf('!') - 1), JoinArray(ircData, 3)));
-                    else
-                        Fire_ChannelMessage(new ChannelMessageEventArgs(ircData[2], ircData[0].Substring(1, ircData[0].IndexOf('!') - 1), JoinArray(ircData, 3)));
+                    {
+                        var from = ircData[0].Substring(1, ircData[0].IndexOf('!') - 1);
+                        var to = ircData[2];
+                        var message = JoinArray(ircData, 3);
+
+                        // if it's a private message
+                        if (String.Equals(to, _nick, StringComparison.CurrentCultureIgnoreCase))
+                            Fire_PrivateMessage(new PrivateMessageEventArgs(from, message));
+                        else
+                            Fire_ChannelMessage(new ChannelMessageEventArgs(to, from, message));
+                    }
                     break;
                 case "PART":
                 case "QUIT":// someone left
-                    Fire_UserLeft(new UserLeftEventArgs(ircData[2], ircData[0].Substring(1, data.IndexOf("!") - 1)));
-                    Send("NAMES " + ircData[2]);
+                    {
+                        var channel = ircData[2];
+                        var user = ircData[0].Substring(1, data.IndexOf("!") - 1);
+
+                        Fire_UserLeft(new UserLeftEventArgs(channel, user));
+                        Send("NAMES " + ircData[2]);
+                    }
                     break;
                 default:
                     // still using this while debugging
@@ -396,7 +455,7 @@ namespace TechLifeForum
         /// </summary>
         /// <param name="message">Message to strip</param>
         /// <returns>Stripped message</returns>
-        private string StripMessage(string message)
+        private static string StripMessage(string message)
         {
             // remove IRC Color Codes
             foreach (Match m in new Regex((char)3 + @"(?:\d{1,2}(?:,\d{1,2})?)?").Matches(message))
@@ -416,7 +475,7 @@ namespace TechLifeForum
         /// <param name="strArray">Array of strings</param>
         /// <param name="startIndex">Starting index</param>
         /// <returns>String</returns>
-        private string JoinArray(string[] strArray, int startIndex)
+        private static string JoinArray(string[] strArray, int startIndex)
         {
             return StripMessage(String.Join(" ", strArray, startIndex, strArray.Length - startIndex));
         }
@@ -430,10 +489,6 @@ namespace TechLifeForum
             writer.Flush();
         }
         #endregion
-
-
-
-
     }
 
 }

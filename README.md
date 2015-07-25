@@ -16,7 +16,7 @@ Current events:
     OnConnected- fires when the client is connected (when you are able to join a channel)
     NickChanged- fires if someone changes their nick
     ExceptionThrown- fires when an exception is thrown on the underlying thread
-    
+    ChannelModeSet - fires when mode is set on the channel
     
 Example usage:
 

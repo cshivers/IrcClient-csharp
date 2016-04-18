@@ -28,6 +28,9 @@ namespace TechLifeForum
         // default alternate nick
         private string _altNick = "";
 
+        //default consoleOutput mode
+        private bool _consoleOutput = true;
+
         // private TcpClient used to talk to the server
         private TcpClient irc;
 
@@ -106,6 +109,14 @@ namespace TechLifeForum
         {
             get { return _altNick; }
             set { _altNick = value; }
+        }
+        /// <summary>
+        /// Output RAW IRC data to console
+        /// </summary>
+        public bool ConsoleOutput
+        {
+            get { return _consoleOutput; }
+            set { _consoleOutput = value; }
         }
         /// <summary>
         /// Returns true if the client is connected.
@@ -305,7 +316,7 @@ namespace TechLifeForum
                 try
                 {
                     ParseData(inputLine);
-                    Console.Write(inputLine);
+                    if(_consoleOutput) Console.Write(inputLine);
                 }
                 catch (Exception ex)
                 {

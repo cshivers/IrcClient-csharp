@@ -153,6 +153,10 @@ namespace TechLifeForum
 
         public event EventHandler<ModeSetEventArgs> ChannelModeSet = delegate { };
 
+        public event EventHandler<ChannelMessageActionArgs> ChannelAction = delegate { };
+
+        public event EventHandler<PrivateActionEventArgs> PrivateAction = delegate { };
+
         private void Fire_UpdateUsers(UpdateUsersEventArgs o)
         {
             op.Post(x => UpdateUsers(this, (UpdateUsersEventArgs)x), o);
@@ -174,6 +178,11 @@ namespace TechLifeForum
         {
             op.Post(x => ChannelMessage(this, (ChannelMessageEventArgs)x), o);
         }
+
+        private void Fire_ChannelAction(ChannelMessageActionArgs o)
+        {
+            op.Post(x => ChannelAction(this, (ChannelMessageActionArgs)x), o);
+        }
         private void Fire_NoticeMessage(NoticeMessageEventArgs o)
         {
             op.Post(x => NoticeMessage(this, (NoticeMessageEventArgs)x), o);
@@ -181,6 +190,11 @@ namespace TechLifeForum
         private void Fire_PrivateMessage(PrivateMessageEventArgs o)
         {
             op.Post(x => PrivateMessage(this, (PrivateMessageEventArgs)x), o);
+        }
+
+        private void Fire_PrivateAction(PrivateActionEventArgs o)
+        {
+            op.Post(x => PrivateAction(this, (PrivateActionEventArgs)x), o);
         }
         private void Fire_ServerMesssage(string s)
         {
@@ -316,7 +330,7 @@ namespace TechLifeForum
                 try
                 {
                     ParseData(inputLine);
-                    if(_consoleOutput) Console.Write(inputLine);
+                    if (_consoleOutput) Console.Write(inputLine);
                 }
                 catch (Exception ex)
                 {
@@ -436,10 +450,11 @@ namespace TechLifeForum
 
                         // if it's a private message
                         if (String.Equals(to, _nick, StringComparison.CurrentCultureIgnoreCase))
-                            Fire_PrivateMessage(new PrivateMessageEventArgs(from, message));
+                            PrivateMessageProven(from, message);
                         else
-                            Fire_ChannelMessage(new ChannelMessageEventArgs(to, from, message));
+                            PublicMessageProven(to, from, message);
                     }
+
                     break;
                 case "PART":
                 case "QUIT":// someone left
@@ -461,6 +476,55 @@ namespace TechLifeForum
             }
 
         }
+
+        private void PublicMessageProven(string to, string from, string message)
+        {
+            if (message.Contains("ACTION"))
+            {
+                Fire_ChannelAction(new ChannelMessageActionArgs(to, from, message));
+            }
+            else
+            {
+                Fire_ChannelMessage(new ChannelMessageEventArgs(to, from, message));
+            }
+        }
+
+        private void PrivateMessageProven(string from, string message)
+        {
+            /*switch (message)
+            {
+                    case "VERSION":
+                    SendNotice(from, "Running Ponychat Client V:0.1");
+                    break;
+                    case "TIME":
+                    SendNotice(from, string.Format("{0:dd-MM-yyyy HH:mm:ss tt }{1}", DateTime.Now, TimeZone.CurrentTimeZone.StandardName));
+                    break;
+                    case "ACTION":
+                        Console.Write(message);
+                        Fire_PrivateAction(new PrivateActionEventArgs(from, message));
+                    break;
+                    default:
+                        Fire_PrivateMessage(new PrivateMessageEventArgs(from, message));
+                    break;
+            }*/
+            if (message.Contains("VERSION"))
+            {
+                SendNotice(from, "Running Ponychat Client V:0.1");
+            }
+            else if (message.Contains("TIME"))
+            {
+                SendNotice(from, string.Format("{0:dd-MM-yyyy HH:mm:ss tt }{1}", DateTime.Now, TimeZone.CurrentTimeZone.StandardName));
+            }
+            else if (message.Contains("ACTION"))
+            {
+                Fire_PrivateAction(new PrivateActionEventArgs(from, message));
+            }
+            else
+            {
+                Fire_PrivateMessage(new PrivateMessageEventArgs(from, message));
+            }
+        }
+
         /// <summary>
         /// Strips the message of unnecessary characters
         /// </summary>

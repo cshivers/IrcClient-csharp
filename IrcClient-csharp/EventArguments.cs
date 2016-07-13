@@ -52,6 +52,20 @@ namespace TechLifeForum
         }
     }
 
+    public class ChannelMessageActionArgs : EventArgs
+    {
+        public string Channel { get; internal set; }
+        public string From { get; internal set; }
+        public string Message { get; internal set; }
+
+        public ChannelMessageActionArgs(string channel, string from, string message)
+        {
+            this.Channel = channel;
+            this.From = from;
+            this.Message = message.Remove(0, 8).Replace("", "");
+        }
+    }
+
     public class NoticeMessageEventArgs : EventArgs
     {
         public string From { get; internal set; }
@@ -73,6 +87,18 @@ namespace TechLifeForum
         {
             this.From = from;
             this.Message = message;
+        }
+    }
+
+    public class PrivateActionEventArgs : EventArgs
+    {
+        public string From { get; internal set; }
+        public string Message { get; internal set; }
+
+        public PrivateActionEventArgs(string from, string message)
+        {
+            this.From = from;
+            this.Message = message.Remove(0, 8).Replace("", "");
         }
     }
 

@@ -8,6 +8,8 @@ Current events:
     UserLeft - fires when a user quits
     ChannelMessage - fires when a channel message is received
     PrivateMessage - fires when a private message is received
+    ChannelAction - fires when a channel message is received
+    PrivateAction - fires when a private message is received
     NoticeMessage - fires when a notice is received
     ServerMessage - fires when no other event is fired
     UpdateUserList - fires when the IRC numeric 353 is received (user list)

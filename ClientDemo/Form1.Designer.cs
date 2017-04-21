@@ -41,6 +41,7 @@
             this.txtChannel = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtNick = new System.Windows.Forms.TextBox();
+            this.checkSSL = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtServer
@@ -48,7 +49,7 @@
             this.txtServer.Location = new System.Drawing.Point(59, 32);
             this.txtServer.Name = "txtServer";
             this.txtServer.Size = new System.Drawing.Size(100, 20);
-            this.txtServer.TabIndex = 0;
+            this.txtServer.TabIndex = 2;
             this.txtServer.Text = "irc.voltirc.com";
             // 
             // txtPort
@@ -56,7 +57,7 @@
             this.txtPort.Location = new System.Drawing.Point(200, 32);
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(44, 20);
-            this.txtPort.TabIndex = 1;
+            this.txtPort.TabIndex = 3;
             this.txtPort.Text = "6667";
             // 
             // LabelServer
@@ -79,10 +80,10 @@
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(401, 30);
+            this.btnConnect.Location = new System.Drawing.Point(336, 29);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(72, 23);
-            this.btnConnect.TabIndex = 4;
+            this.btnConnect.TabIndex = 5;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
             this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
@@ -129,7 +130,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(247, 35);
+            this.label1.Location = new System.Drawing.Point(200, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(49, 13);
             this.label1.TabIndex = 9;
@@ -137,10 +138,10 @@
             // 
             // txtChannel
             // 
-            this.txtChannel.Location = new System.Drawing.Point(302, 32);
+            this.txtChannel.Location = new System.Drawing.Point(255, 6);
             this.txtChannel.Name = "txtChannel";
-            this.txtChannel.Size = new System.Drawing.Size(93, 20);
-            this.txtChannel.TabIndex = 10;
+            this.txtChannel.Size = new System.Drawing.Size(141, 20);
+            this.txtChannel.TabIndex = 1;
             this.txtChannel.Text = "#TechLifeForum";
             // 
             // label2
@@ -156,15 +157,27 @@
             // 
             this.txtNick.Location = new System.Drawing.Point(59, 6);
             this.txtNick.Name = "txtNick";
-            this.txtNick.Size = new System.Drawing.Size(100, 20);
-            this.txtNick.TabIndex = 12;
+            this.txtNick.Size = new System.Drawing.Size(135, 20);
+            this.txtNick.TabIndex = 0;
             this.txtNick.Text = "Guest";
+            // 
+            // checkSSL
+            // 
+            this.checkSSL.AutoSize = true;
+            this.checkSSL.Location = new System.Drawing.Point(250, 33);
+            this.checkSSL.Name = "checkSSL";
+            this.checkSSL.Size = new System.Drawing.Size(82, 17);
+            this.checkSSL.TabIndex = 4;
+            this.checkSSL.Text = "Enable SSL";
+            this.checkSSL.UseVisualStyleBackColor = true;
+            this.checkSSL.CheckedChanged += new System.EventHandler(this.checkSSL_CheckedChanged);
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(485, 383);
+            this.Controls.Add(this.checkSSL);
             this.Controls.Add(this.txtNick);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtChannel);
@@ -178,7 +191,9 @@
             this.Controls.Add(this.LabelServer);
             this.Controls.Add(this.txtPort);
             this.Controls.Add(this.txtServer);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "frmMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Client";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.ResumeLayout(false);
@@ -201,6 +216,7 @@
         private System.Windows.Forms.TextBox txtChannel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtNick;
+        private System.Windows.Forms.CheckBox checkSSL;
     }
 }
 

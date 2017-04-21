@@ -22,11 +22,11 @@ Example usage:
 	IrcClient client;
 	
 	if(!enabledSSL) {
-    	// Non-SSL Conenction
-    	client = new IrcClient("server", 6667, false);
+    		// Non-SSL Conenction
+    		client = new IrcClient("server", 6667, false);
 	} else {
 		// SSL Conenction
-    	client = new IrcClient("server", 6697, true);
+    		client = new IrcClient("server", 6697, true);
 	}
     
     // connect to the server

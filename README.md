@@ -19,18 +19,24 @@ Current events:
     ChannelModeSet - fires when mode is set on the channel
     
 Example usage:
-
-    // new instance
-    client = new IrcClient("server", 6667);
+	IrcClient client;
+	
+	if(!enabledSSL) {
+    		// Non-SSL Conenction
+    		client = new IrcClient("server", 6667, false);
+	} else {
+		// SSL Conenction
+    		client = new IrcClient("server", 6697, true);
+	}
     
     // connect to the server
     client.Connect();
     
     // join channel
-    client.JoinChannel("#channel");
+    client.JoinChannel("#general");
     
     //send message
-    client.SendMessage("#channel","Message");
+    client.SendMessage("#general","Hello World!");
     
     //send notice
     client.SendNotice("user","Message");

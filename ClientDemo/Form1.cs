@@ -22,9 +22,15 @@ namespace ClientDemo
         private void btnConnect_Click(object sender, EventArgs e)
         {
             if (btnConnect.Text == "Connect")
+            {
+                checkSSL.Enabled = false;
                 DoConnect();
+            }
             else
+            {
                 DoDisconnect();
+                checkSSL.Enabled = true;
+            }
         }
         private void btnSend_Click(object sender, EventArgs e)
         {
@@ -66,7 +72,13 @@ namespace ClientDemo
 
             int port;
             if (Int32.TryParse(txtPort.Text, out port))
-                client = new IrcClient(txtServer.Text.Trim(), port);
+                if (checkSSL.Checked)
+                {
+                    client = new IrcClient(txtServer.Text.Trim(), port, true);
+                }
+                else {
+                    client = new IrcClient(txtServer.Text.Trim(), port, false);
+                }
             else
                 client = new IrcClient(txtServer.Text.Trim());
 
@@ -186,6 +198,14 @@ namespace ClientDemo
         }
 
         #endregion
-
+        #region SSL
+        private void checkSSL_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkSSL.Checked)
+            {
+                MessageBox.Show("SSL IRC Usually opperates over port 6697!", "WARNING!");
+            }
+        }
+        #endregion
     }
 }

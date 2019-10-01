@@ -1,4 +1,4 @@
-This project has been archived. It's an oldddddd project that I created as a POC.
+This project has been archived. It's an old project that I created as a POC.
 
 IrcClient-csharp
 ================
